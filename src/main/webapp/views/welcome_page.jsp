@@ -19,7 +19,9 @@ List<UserTO> users = (List<UserTO>) request.getAttribute("users");
         <div class="row">
             <div class="col-md-6 offset-md-3">
                 <h2 class="text-center text-dark mt-5">Osttra Book Management</h2>
-
+                <div class="mb-3 text-danger text-center text-bold">
+                    ${message}
+                </div>
                 <div class="my-3">
                     <table class="table">
                         <thead>

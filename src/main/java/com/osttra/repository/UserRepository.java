@@ -154,4 +154,23 @@ public class UserRepository {
         }
         return users;
     }
+
+    public int ApproveUser(UserTO user) {
+        int res= -1;
+        try {
+            PreparedStatement statement = connection.prepareStatement("update user set approved = NOT approved where email = ?");
+            statement.setString(1, user.getEmail());
+            statement.executeUpdate();
+            res= 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (e instanceof SQLIntegrityConstraintViolationException) {
+                System.out.println("SQL Constraint Violation");
+            }
+            if (e instanceof NullPointerException) {
+                System.out.println("NULL pointer Exception in checking user!");
+            }
+        }
+        return res;
+    }
 }

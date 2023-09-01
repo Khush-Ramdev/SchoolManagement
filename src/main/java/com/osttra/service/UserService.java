@@ -2,6 +2,7 @@ package com.osttra.service;
 
 import com.osttra.repository.UserRepository;
 import com.osttra.to.UserTO;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -63,4 +64,6 @@ public class UserService  {
     public UserTO getUser(String email){
        return repository.getUser(email);
     }
+
+    public int ApproveUser(UserTO user){ return repository.ApproveUser(user);}
 }

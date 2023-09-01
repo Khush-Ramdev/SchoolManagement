@@ -18,6 +18,12 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    private ArrayList<UserTO> getAllUsers(){
+        return userService.getAllUsers();
+    }
+
+
+
     @PostMapping(path = "/register")
     public ModelAndView Registration(UserTO user) {
         ModelAndView modelAndView = null;
@@ -49,8 +55,7 @@ public class UserController {
                 HttpSession session = request.getSession(true);
                 session.setAttribute("user", user);
                 if (user.getRole().equalsIgnoreCase("admin")) {
-                    ArrayList<UserTO> users = userService.getAllUsers();
-                    modelAndView.addObject("users", users);
+                    modelAndView.addObject("users", getAllUsers());
                 }
             }
             case 1 -> {
@@ -91,7 +96,6 @@ public class UserController {
         HttpSession session = request.getSession(false);
         if (session != null) {
             UserTO userNew = userService.getUser(user.getEmail());
-
             userNew.setName(user.getName());
             int res = userService.update(userNew);
             UserTO actingUser = (UserTO) session.getAttribute("user");
@@ -100,8 +104,7 @@ public class UserController {
                     modelAndView = new ModelAndView("welcome_page");
                     modelAndView.addObject("message", "Details updated successfully");
                     if (actingUser.getRole().equalsIgnoreCase("admin")) {
-                        ArrayList<UserTO> users = userService.getAllUsers();
-                        modelAndView.addObject("users", users);
+                        modelAndView.addObject("users", getAllUsers());
                     }
                     if (actingUser.getEmail().equalsIgnoreCase(userNew.getEmail())) {
                         session.setAttribute("user", userNew);
@@ -113,7 +116,7 @@ public class UserController {
                     modelAndView.addObject("message", "Something wrong happened please try again");
                 }
             }
-        }else{
+        } else {
             modelAndView.addObject("message", "Please login to update profile");
         }
         return modelAndView;
@@ -129,11 +132,9 @@ public class UserController {
             int res = userService.delete(userNew);
             System.out.println(res);
             if (res == 0) {
-                if(actingUser.getRole().equalsIgnoreCase("admin") && !actingUser.getEmail().equalsIgnoreCase(userNew.getEmail())){
+                if (actingUser.getRole().equalsIgnoreCase("admin") && !actingUser.getEmail().equalsIgnoreCase(userNew.getEmail())) {
                     modelAndView = new ModelAndView("welcome_page");
-                    System.out.println("hello");
-                }
-                else{
+                } else {
                     session.invalidate();
                 }
                 modelAndView.addObject("message", "Account deleted successfully");
@@ -156,12 +157,37 @@ public class UserController {
         return modelAndView;
     }
 
-    @PostMapping(path = "/approve/{email}")
-    public ModelAndView approve(HttpServletRequest request) {
+    @GetMapping(path = "/approve/{email}")
+    public ModelAndView approve(@PathVariable String email, HttpServletRequest request) {
         ModelAndView modelAndView = new ModelAndView("index");
         HttpSession session = request.getSession(false);
-        session.invalidate();
-        modelAndView.addObject("message", "Logout Successful");
+        if (session != null) {
+            UserTO userNew = userService.getUser(email);
+            UserTO actingUser = (UserTO) session.getAttribute("user");
+            if (actingUser.getRole().equalsIgnoreCase("admin")) {
+                int res =-1;
+                res = userService.ApproveUser(userNew);
+                modelAndView = new ModelAndView("welcome_page");
+                if (res == 0) {
+                    if(userNew.isApproved()){
+                        modelAndView.addObject("message", "Account access Approved successfully");
+                    }
+                    else{
+                        modelAndView.addObject("message", "Account access Refused successfully");
+                    }
+                }
+                else {
+                    modelAndView.addObject("message", "Something went wrong please try again");
+                }
+                modelAndView.addObject("users", getAllUsers());
+                System.out.println(getAllUsers());
+            }
+            else {
+                modelAndView.addObject("message", "You must be admin to approve users");
+            }
+        } else {
+            modelAndView.addObject("message", "Please login to approve users");
+        }
         return modelAndView;
     }
 }
