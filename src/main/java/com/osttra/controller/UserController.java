@@ -169,11 +169,11 @@ public class UserController {
                 res = userService.ApproveUser(userNew);
                 modelAndView = new ModelAndView("welcome_page");
                 if (res == 0) {
-                    if(userNew.isApproved()){
-                        modelAndView.addObject("message", "Account access Approved successfully");
+                    if(!userNew.isApproved()){
+                        modelAndView.addObject("message", userNew.getName()+" access Approved successfully");
                     }
                     else{
-                        modelAndView.addObject("message", "Account access Refused successfully");
+                        modelAndView.addObject("message", userNew.getName()+" access Refused successfully");
                     }
                 }
                 else {
